@@ -1,31 +1,30 @@
 package com.example.room_exam_kotlin
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.room.Room
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 
+
 class MainActivity : AppCompatActivity() {
+    val mainViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val db = Room.databaseBuilder(
-                applicationContext,
-                AppDatabase::class.java, "todo-db-kotlin"
-        )
-                .allowMainThreadQueries()
-                .build()
+        val viewModel = ViewModelProvider(this,
+                AndroidViewModelFactory(application)).get(MainViewModel::class.java)
 
-        db.todoDao().getAll().observe(this, Observer { todos ->
+        mainViewModel.getAll().observe(this, Observer { todos ->
             result_text.text = todos.toString()
         })
 
         add_button.setOnClickListener {
-            db.todoDao().insert(Todo(todo_edit.text.toString()))
-            result_text.text = db.todoDao().getAll().toString()
+            mainViewModel.insert(Todo(todo_edit.text.toString()))
         }
-
     }
 }
